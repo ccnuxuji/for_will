@@ -1,22 +1,21 @@
 import pandas as pd
 import numpy as np
 import os
-import sys
 from datetime import datetime
 
-def read_excel_data(file_path):
-    """读取Excel文件并返回DataFrame"""
+def read_csv_data(file_path):
+    """读取CSV文件并返回DataFrame"""
     try:
         if not os.path.exists(file_path):
             print(f"错误：文件 {file_path} 不存在")
             return None
         
-        df = pd.read_excel(file_path, header=None)
+        df = pd.read_csv(file_path, header=None)
         print(f"✓ 成功读取文件 {file_path}")
         print(f"  数据形状: {df.shape[0]} 行 × {df.shape[1]} 列")
         return df
     except Exception as e:
-        print(f"❌ 读取Excel文件时出错: {e}")
+        print(f"❌ 读取CSV文件时出错: {e}")
         return None
 
 def analyze_data_structure(df):
@@ -188,25 +187,21 @@ def main():
     print("🚀 Wafer测试数据提取工具")
     print("="*50)
     
-    # 检查命令行参数
-    if len(sys.argv) < 2:
-        print("❌ 请提供输入文件名（不需要.xlsx后缀）")
-        print("使用方法: python extract_data.py <文件名>")
-        print("例如: python extract_data.py test_data")
-        return
+    # 在这里手动设置输入文件名（不需要.csv后缀）
+    input_basename = "test_data"  # 👈 在这里修改你的文件名
     
-    # 获取输入文件名并添加.xlsx后缀
-    input_basename = sys.argv[1]
-    input_file = f'{input_basename}.xlsx'
+    # 添加.csv后缀
+    input_file = f'{input_basename}.csv'
     
     # 动态生成输出文件名：在输入文件名前加上"extracted_"
     output_file = f'extracted_{input_basename}.xlsx'
     
     print(f"📁 输入文件: {input_file}")
     print(f"📁 输出文件: {output_file}")
+    print(f"💡 提示: 如需更改输入文件名，请编辑main函数中的input_basename变量")
     
     # 读取输入文件
-    df = read_excel_data(input_file)
+    df = read_csv_data(input_file)
     if df is None:
         return
     

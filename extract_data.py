@@ -47,17 +47,39 @@ def read_csv_data(file_path):
         
         for encoding in encodings:
             try:
-                # 使用逗号分隔符和容错处理
-                df = pd.read_csv(
-                    file_path, 
-                    header=None, 
-                    encoding=encoding,
-                    sep=',',  # 使用逗号分隔符
-                    on_bad_lines='skip',  # 跳过有问题的行
-                    engine='python',  # 使用Python引擎，更灵活
-                    skipinitialspace=True,  # 跳过分隔符后的空格
-                    quoting=3  # 忽略引号问题
-                )
+                # 手动读取文件，处理不同列数的行
+                with open(file_path, 'r', encoding=encoding) as f:
+                    lines = f.readlines()
+                
+                # 处理每一行，保持原始的列数结构
+                processed_data = []
+                for line in lines:
+                    line = line.strip()
+                    if line:  # 跳过空行
+                        if ',' in line:
+                            # 有逗号的行按逗号分割
+                            parts = line.split(',')
+                            # 去除末尾的空字符串（处理尾逗号）
+                            while parts and parts[-1] == '':
+                                parts.pop()
+                            processed_data.append(parts)
+                        else:
+                            # 没有逗号的行作为单个值
+                            processed_data.append([line])
+                    else:
+                        # 空行保持为空行
+                        processed_data.append([''])
+                
+                # 找到最大列数
+                max_cols = max(len(row) for row in processed_data) if processed_data else 1
+                
+                # 创建不规则的DataFrame - 用空字符串填充较短的行
+                for row in processed_data:
+                    while len(row) < max_cols:
+                        row.append('')
+                
+                # 创建新的DataFrame
+                df = pd.DataFrame(processed_data)
                 
                 # 检查是否成功读取到有效数据
                 if df is not None and len(df) > 0:
@@ -73,7 +95,7 @@ def read_csv_data(file_path):
                             encoding=encoding,
                             sep=',',
                             engine='python',
-                            on_bad_lines='skip',
+                            on_bad_lines='warn',
                             skipinitialspace=True,
                             quoting=3,
                             # 填充缺失的列
@@ -95,6 +117,9 @@ def read_csv_data(file_path):
                                 if ',' in line:
                                     # 有逗号的行按逗号分割
                                     parts = line.split(',')
+                                    # 去除末尾的空字符串（处理尾逗号）
+                                    while parts and parts[-1] == '':
+                                        parts.pop()
                                     processed_data.append(parts)
                                 else:
                                     # 没有逗号的行作为单个值
@@ -148,7 +173,7 @@ def read_csv_data(file_path):
                     encoding='utf-8',
                     sep=',',
                     engine='python',
-                    on_bad_lines='skip',  # 跳过有问题的行
+                    on_bad_lines='warn',  # 警告但不跳过有问题的行
                     skipinitialspace=True,
                     quoting=3  # 忽略引号问题
                 )
@@ -236,6 +261,7 @@ def analyze_data_structure(df):
     # 显示更多行的预览来调试
     print(f"  📋 前10行数据预览:")
     print(df.head(10).to_string())
+    df.to_csv('test_data_1.csv', index=False)
     
     identifier_positions = {}
     
@@ -542,6 +568,7 @@ def main():
     df = read_csv_data(input_file)
     if df is None:
         return
+    df.to_csv('test_data_2.csv', index=False)
     
     # 分析数据结构
     wafer_id_rows, identifier_positions = analyze_data_structure(df)

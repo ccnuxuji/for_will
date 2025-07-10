@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import sys
 from datetime import datetime
 
 def read_excel_data(file_path):
@@ -187,12 +188,19 @@ def main():
     print("🚀 Wafer测试数据提取工具")
     print("="*50)
     
-    # 文件路径
-    input_file = 'test_data.xlsx'
+    # 检查命令行参数
+    if len(sys.argv) < 2:
+        print("❌ 请提供输入文件名（不需要.xlsx后缀）")
+        print("使用方法: python extract_data.py <文件名>")
+        print("例如: python extract_data.py test_data")
+        return
+    
+    # 获取输入文件名并添加.xlsx后缀
+    input_basename = sys.argv[1]
+    input_file = f'{input_basename}.xlsx'
+    
     # 动态生成输出文件名：在输入文件名前加上"extracted_"
-    base_name = os.path.splitext(input_file)[0]  # 获取不带扩展名的文件名
-    extension = os.path.splitext(input_file)[1]  # 获取扩展名
-    output_file = f'extracted_{base_name}{extension}'
+    output_file = f'extracted_{input_basename}.xlsx'
     
     print(f"📁 输入文件: {input_file}")
     print(f"📁 输出文件: {output_file}")
